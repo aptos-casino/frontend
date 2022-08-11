@@ -24,10 +24,10 @@ class Contract {
 
     }
 
-    async subscribeOnEvents(sender, eventHandleStruct, fields, fromLast, callback) {
+    async subscribeOnEvents(sender, eventHandleStruct, field, fromLast, callback) {
         let from = 0;
         if (fromLast) {
-            const lastEvent = await aptos.getEvent(this.address, this.address, eventHandleStruct, fields[0], 0, 1)
+            const lastEvent = await aptos.getEvent(this.address, this.address, eventHandleStruct, field, 0, 1)
                 .catch(() => {
                     return null;
                 });
@@ -36,26 +36,16 @@ class Contract {
             }
         }
         const loop = async () => {
-            console.log("loop");
-            const data = {}
-            let exits = false;
-            for (let i = 0; i < fields.length; i++) {
-                const lastEvent = await aptos.getEvent(this.address, this.wallet.address, eventHandleStruct, fields[i], from, 1)
-                    .catch(() => {
-                        return null;
-                    });
-                if (!lastEvent) {
-                    exits = false;
-                    break;
-                }
-                console.log("lastEvent", lastEvent);
-                data[fields[i]] = lastEvent;
-                exits = true;
-            }
-            if (exits) {
-                callback(data);
+
+            const lastEvent = await aptos.getEvent(this.address, this.wallet.address, eventHandleStruct, field, from, 1)
+                .catch(() => {
+                    return null;
+                });
+            if (!lastEvent) {
+                callback(lastEvent);
                 from += 1;
             }
+
             //setTimeout(loop, 100);
         }
 
@@ -67,9 +57,8 @@ class Contract {
     }
 
     handleEvents() {
-        console.log("handleEvents");
-        this.subscribeOnEvents(this.address, "Casino::StartedGameEvent",
-            ["player", "client_seed_hash", "bet_amount", "game_id"], false, this.gameCreated)
+        this.subscribeOnEvents(this.address, "Casino::EventsStore",
+            "start_game_event", false, this.gameCreated)
             .catch(console.error);
     }
 }
