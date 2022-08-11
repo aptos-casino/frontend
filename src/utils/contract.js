@@ -45,12 +45,15 @@ class Contract {
                         return null;
                     });
                 if (!lastEvent) {
+                    exits = false;
                     break;
                 }
                 console.log("lastEvent", lastEvent);
                 data[fields[i]] = lastEvent;
+                exits = true;
             }
             if (exits) {
+                callback(data);
                 from += 1;
             }
             setTimeout(loop, 100);
