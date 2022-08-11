@@ -20,8 +20,7 @@ class Aptos {
     }
 
     async getEvent(address, sender, eventHandleStruct, fieldName, from, limit) {
-        console.log('address, sender, eventHandleStruct, fieldName, from, limit', address, sender, eventHandleStruct, fieldName, from, limit)
-        let url = this.url + "/accounts/" + (sender || address)
+        let url = this.url + "/accounts/" + sender.replace("0x", "")
             + "/events/" + address + "::" + eventHandleStruct
             + "/" + fieldName
             + "?start=" + String(from)

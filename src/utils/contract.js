@@ -36,12 +36,11 @@ class Contract {
             }
         }
         const loop = async () => {
-
-            const lastEvent = await aptos.getEvent(this.address, this.wallet.address, eventHandleStruct, field, from, 1)
+            const lastEvent = await aptos.getEvent(this.address, this.address, eventHandleStruct, field, from, 1)
                 .catch(() => {
                     return null;
                 });
-            if (!lastEvent) {
+            if (lastEvent) {
                 callback(lastEvent);
                 from += 1;
             }
@@ -49,7 +48,7 @@ class Contract {
             //setTimeout(loop, 100);
         }
 
-        setTimeout(loop, 1000);
+        setTimeout(loop, 100);
     }
 
     gameCreated(eventData) {
