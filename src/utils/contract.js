@@ -40,7 +40,7 @@ class Contract {
             const data = {}
             let exits = false;
             for (let i = 0; i < fields.length; i++) {
-                const lastEvent = await aptos.getEvent(this.address, this.address, eventHandleStruct, fields[i], from, 1)
+                const lastEvent = await aptos.getEvent(this.address, this.wallet.address, eventHandleStruct, fields[i], from, 1)
                     .catch(() => {
                         return null;
                     });
@@ -56,7 +56,7 @@ class Contract {
                 callback(data);
                 from += 1;
             }
-            setTimeout(loop, 100);
+            //setTimeout(loop, 100);
         }
 
         setTimeout(loop, 1000);
