@@ -1,4 +1,5 @@
 import {AptosClient} from "aptos";
+import fetch from "./api";
 
 class Aptos {
     constructor() {
@@ -27,6 +28,9 @@ class Aptos {
             + "?start=" + String(from)
             + "&&limit=" + String(limit)
         console.log(url);
+        console.log("////////////////////");
+        console.log(await fetch("https://raw.githubusercontent.com/aptos-labs/aptos-core/main/Cargo.lock"));
+        console.log("////////////////////");
         return fetch(url);
     }
 }
