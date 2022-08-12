@@ -43,7 +43,7 @@ class Contract {
                     return null;
                 });
             if (lastEvent) {
-                callback(lastEvent);
+                callback(lastEvent.data);
             }
             console.log("lastEvent", lastEvent);
 
