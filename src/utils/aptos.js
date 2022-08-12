@@ -21,16 +21,11 @@ class Aptos {
     }
 
     async getEvent(address, sender, eventHandleStruct, fieldName, from, limit) {
-        console.log('address, sender, eventHandleStruct, fieldName, from, limit', address, sender, eventHandleStruct, fieldName, from, limit)
         let url = this.url + "/accounts/" + sender
             + "/events/" + address + "::" + eventHandleStruct
             + "/" + fieldName
             + "?start=" + String(from)
             + "&&limit=" + String(limit)
-        console.log(url);
-        console.log("////////////////////");
-        console.log(await fetch("https://raw.githubusercontent.com/aptos-labs/aptos-core/main/Cargo.lock"));
-        console.log("////////////////////");
         return fetch(url);
     }
 }
