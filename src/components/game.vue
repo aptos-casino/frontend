@@ -318,7 +318,7 @@ export default {
           this.$store.commit('UPDATE_ACCOUNT', {name:wallet.address});
           this.$store.commit('UPDATE_WALLET', wallet);
 
-          const contract = new Contract("0x5cf99825221617d7ed44cf76276f025f5f5498fef3943b7974662825f2ef5029", wallet);
+          const contract = new Contract("0xac7c4190af4c8aaff5e66a7598b4d9b5567e1c620bfb71bf7c6e073300746bbb", wallet);
           contract.handleEvents();
           this.$store.commit('UPDATE_CONTRACT', contract);
           await this.getPlayerBalance();

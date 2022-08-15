@@ -36,18 +36,27 @@ class Contract {
             }
         }
         const loop = async () => {
-            console.log("loop");
-
+            const processedEvent = {};
             const lastEvent = await aptos.getEvent(this.address, this.address, eventHandleStruct, field, from, 1)
                 .catch(() => {
                     return null;
                 });
             if (lastEvent) {
-                callback(lastEvent.data);
+                console.log('lastEvent.', lastEvent)
+                for (let i = 0; i < lastEvent.length; i++) {
+                    const event = lastEvent[i];
+                    if (!processedEvent[event.sequence_number]) {
+                        callback(event);
+                        processedEvent[event.sequence_number] = true;
+                    }
+                    if (from === Number(event.sequence_number)) {
+                        from += 1;
+                    }
+                }
+                setTimeout(loop, 50);
+            } else {
+                setTimeout(loop, 1000);
             }
-            console.log("lastEvent", lastEvent);
-
-            //setTimeout(loop, 100);
         };
 
         setTimeout(loop, 100);

@@ -1,4 +1,5 @@
 import {AptosClient} from "aptos";
+import fetch from "./api";
 
 class Aptos {
     constructor() {
