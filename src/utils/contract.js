@@ -36,19 +36,14 @@ class Contract {
             }
         }
         const loop = async () => {
-            const processedEvent = {};
             const lastEvent = await aptos.getEvent(this.address, this.address, eventHandleStruct, field, from, 1)
                 .catch(() => {
                     return null;
                 });
             if (lastEvent) {
-                console.log('lastEvent.', lastEvent)
                 for (let i = 0; i < lastEvent.length; i++) {
                     const event = lastEvent[i];
-                    if (!processedEvent[event.sequence_number]) {
-                        callback(event);
-                        processedEvent[event.sequence_number] = true;
-                    }
+                    callback(event);
                     if (from === Number(event.sequence_number)) {
                         from += 1;
                     }
