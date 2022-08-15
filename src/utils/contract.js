@@ -1,5 +1,5 @@
 import aptos from "@/utils/aptos";
-import {AptosAccount} from "aptos";
+import {AptosAccount, HexString} from "aptos";
 import {sha3_256} from "js-sha3";
 
 class Contract {
@@ -7,6 +7,11 @@ class Contract {
         this.address = address;
         this.wallet = wallet;
         this.backendConstructor();
+        this.onStartGame = this.onStartGame.bind(this)
+        this.onInitedBackendSeedHashes = this.onInitedBackendSeedHashes.bind(this)
+        this.onInitedClientSeedHashes = this.onInitedClientSeedHashes.bind(this)
+        this.onInitedBackendSeed = this.onInitedBackendSeed.bind(this)
+        this.onInitedClientSeed = this.onInitedClientSeed.bind(this)
     }
 
     async startRoll(playerAddress, hashSeed, bet, rollUnder) {
@@ -63,9 +68,9 @@ class Contract {
     async onStartGame(eventData) {
         console.log("onStartGame", eventData);
 
-        if (eventData.data["player"] !== this.address) {
-            return;
-        }
+        // if (eventData.data["player"] !== this.address) {
+        //     return;
+        // }
         const {hash} = this.prepareBackendSeed();
         await this.SetBackendSeedHash(eventData.data["game_id"], hash);
     }
@@ -108,9 +113,13 @@ class Contract {
 
     // -------- for backend mock---------
     backendConstructor() {
+        console.log('backendConstructor');
         this.backendPrivateKey = "f584541815415154554564564556446564548964546654546564346654949456";
-        this.backendAccount = new AptosAccount(this.backendPrivateKey);
-        this.seeds = {};
+        this.backendAddress = "0xac7c4190af4c8aaff5e66a7598b4d9b5567e1c620bfb71bf7c6e073300746bbb";
+        this.backendAccount = new AptosAccount(new HexString(this.backendPrivateKey).toUint8Array(), this.backendAddress);
+        this.backendSeeds = {};
+        console.log('this.backendAccount', this.backendAccount);
+        console.log('new HexString(this.backendPrivateKey).toUint8Array()', new HexString(this.backendPrivateKey).toUint8Array());
     }
 
     async SetBackendSeed(gameId, seed) {
@@ -119,24 +128,26 @@ class Contract {
     async SetBackendSeedHash(gameId, hash) {
         const payload = {
             type: "script_function_payload",
-            function: `${this.address}::Casino::set_backend_seed_hash`,
+            function: `${this.backendAddress}::Casino::set_backend_seed_hash`,
             type_arguments: [],
             arguments: [gameId.toString(), hash.toString("hex")]
         };
-        await this.backendSignAndSubmitTransaction(this.backendAccount, payload).then(console.log);
+        await this.backendSignAndSubmitTransaction(this.backendAddress, payload)
+            .then(console.log);
     }
 
-    async backendSignAndSubmitTransaction(account, payload) {
-        const transaction = await aptos.client.generateTransaction(account, payload);
-        console.log('transaction', transaction);
-        return await aptos.client.signAndSubmitTransaction(account, transaction);
+    async backendSignAndSubmitTransaction(sender, payload) {
+        const transaction = await aptos.client.generateTransaction(sender, payload);
+        console.log('backendSignAndSubmitTransaction', transaction);
+        const transactionSigned =  await aptos.client.signTransaction(this.backendAccount, transaction);
+        return await aptos.client.submitTransaction(transactionSigned);
     }
 
     prepareBackendSeed() {
         let seed = Math.floor(Math.random() * Math.floor(Number.MAX_SAFE_INTEGER)) + Date.now();
         const s3 = sha3_256.create();
         const hash = s3.hex();
-        this.seeds[hash] = seed;
+        this.backendSeeds[hash] = seed;
         return {
             seed,
             hash
