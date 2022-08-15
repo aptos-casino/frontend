@@ -57,13 +57,42 @@ class Contract {
         setTimeout(loop, 100);
     }
 
-    gameCreated(eventData) {
-        console.log("eventData", eventData);
+    onStartGame(eventData) {
+        console.log("onStartGame", eventData);
+    }
+
+    onInitedBackendSeedHashes(eventData) {
+        console.log("onInitedBackendSeedHashes", eventData);
+    }
+
+    onInitedClientSeedHashes(eventData) {
+        console.log("onInitedClientSeedHashes", eventData);
+    }
+
+    onInitedBackendSeed(eventData) {
+        console.log("onInitedBackendSeed", eventData);
+    }
+
+    onInitedClientSeed(eventData) {
+        console.log("onInitedClientSeed", eventData);
     }
 
     handleEvents() {
         this.subscribeOnEvents(this.address, "Casino::EventsStore",
-            "start_game_event", false, this.gameCreated)
+            "start_game_event", false, this.onStartGame)
+            .catch(console.error);
+        this.subscribeOnEvents(this.address, "Casino::EventsStore",
+            "inited_backend_seed_hashes_event", false, this.onInitedBackendSeedHashes)
+            .catch(console.error);
+        this.subscribeOnEvents(this.address, "Casino::EventsStore",
+            "inited_client_seed_hashes_event", false, this.onInitedClientSeedHashes)
+            .catch(console.error);
+        this.subscribeOnEvents(this.address, "Casino::EventsStore",
+            "inited_backend_seed_event", false, this.onInitedBackendSeed)
+            .catch(console.error);
+
+        this.subscribeOnEvents(this.address, "Casino::EventsStore",
+            "inited_client_seed_event", false, this.onInitedClientSeed)
             .catch(console.error);
     }
 }
