@@ -135,13 +135,11 @@
 <script>
 import eosLogo from '@/assets/eos.png';
 import tokenLogo from '@/assets/bet-token.png';
-import Eos from 'eosjs';
 import eventHub from '@/utils/event';
 import network from '@/utils/network';
 import fetch from '@/utils/api';
 import api from '@/utils/eos';
 import aptos from '@/utils/aptos';
-import createHash from 'create-hash';
 import MartianWallet from "@/utils/MartianWallet";
 import Contract from "@/utils/contract";
 import {sha3_256} from "js-sha3";

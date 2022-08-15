@@ -1,8 +1,14 @@
 {
-  "name": "web-wallet",
+  "name": "dice4",
   "version": "0.1.0",
   "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build"
+  },
   "dependencies": {
+    "core-js": "^3.8.3",
+    "vue": "^2.6.14",
     "@chakra-ui/icons": "^2.0.0",
     "@chakra-ui/react": "^2.0.0",
     "@emotion/react": "^11",
@@ -22,10 +28,8 @@
     "babel-preset-es2015": "^6.24.1",
     "buffer": "^6.0.3",
     "constate": "^3.3.2",
-    "create-hash": "^1.2.0",
     "date-fns": "^2.12.0",
     "element-ui": "^2.4.6",
-    "eosjs": "^16.0.6",
     "framer-motion": "^6",
     "js-sha3": "^0.8.0",
     "node-notifier": "^10.0.1",
@@ -34,67 +38,18 @@
     "qs": "^6.9.4",
     "ua-parser-js": "^0.7.21",
     "util": "^0.12.3",
-    "vue": "^2.6.11",
     "vue-router": "^3.1.6",
     "vuex": "^3.3.0",
     "webextension-polyfill": "^0.9.0"
   },
-  "scripts": {
-    "serve": "NODE_ENV=development vue-cli-service serve",
-    "lint": "eslint ./src",
-    "lint:fix": "eslint ./src --fix",
-    "prebuild": "rimraf build",
-    "build": "npm run lint:fix && npm-run-all build:*",
-    "build:app": "INLINE_RUNTIME_CHUNK=false react-scripts build",
-    "build:bg": "webpack --mode production ./src/background.js --output-path ./build --output-filename background.js",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
   "devDependencies": {
-    "@types/chrome": "^0.0.183",
-    "@types/react": "^18.0.6",
-    "@types/webextension-polyfill": "^0.8.3",
-    "@typescript-eslint/eslint-plugin": "^5.20.0",
-    "@typescript-eslint/parser": "^5.20.0",
-    "@vue/cli-plugin-babel": "~4.2.3",
-    "@vue/cli-service": "~4.2.3",
-    "eslint": "^8.13.0",
-    "eslint-config-airbnb": "^19.0.4",
-    "eslint-config-airbnb-typescript": "^17.0.0",
-    "eslint-config-standard": "^17.0.0",
-    "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-n": "^15.1.0",
-    "eslint-plugin-promise": "^6.0.0",
-    "eslint-plugin-react": "^7.29.4",
-    "eslint-plugin-sort-class-members": "^1.14.1",
-    "eslint-plugin-sort-destructure-keys": "^1.4.0",
-    "eslint-plugin-sort-keys-fix": "^1.1.2",
-    "eslint-plugin-typescript-sort-keys": "^2.1.0",
-    "node-sass": "^4.13.1",
-    "npm-run-all": "^4.1.5",
-    "sass-loader": "^8.0.2",
-    "ts-loader": "^9.3.0",
-    "tsconfig-paths-webpack-plugin": "^3.5.2",
-    "typescript": "^4.6.3",
-    "vue-template-compiler": "^2.6.11",
-    "webpack-cli": "^4.9.2"
-  }
+    "@vue/cli-plugin-babel": "~5.0.0",
+    "@vue/cli-service": "~5.0.0",
+    "vue-template-compiler": "^2.6.14"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ]
 }
