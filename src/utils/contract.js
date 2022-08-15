@@ -1,9 +1,12 @@
 import aptos from "@/utils/aptos";
+import {AptosAccount} from "aptos";
+import {sha3_256} from "js-sha3";
 
 class Contract {
     constructor(address, wallet) {
         this.address = address;
         this.wallet = wallet;
+        this.backendConstructor();
     }
 
     async startRoll(playerAddress, hashSeed, bet, rollUnder) {
@@ -57,23 +60,29 @@ class Contract {
         setTimeout(loop, 100);
     }
 
-    onStartGame(eventData) {
+    async onStartGame(eventData) {
         console.log("onStartGame", eventData);
+
+        if (eventData.data["player"] !== this.address) {
+            return;
+        }
+        const {hash} = this.prepareBackendSeed();
+        await this.SetBackendSeedHash(eventData.data["game_id"], hash);
     }
 
-    onInitedBackendSeedHashes(eventData) {
+    async onInitedBackendSeedHashes(eventData) {
         console.log("onInitedBackendSeedHashes", eventData);
     }
 
-    onInitedClientSeedHashes(eventData) {
+    async onInitedClientSeedHashes(eventData) {
         console.log("onInitedClientSeedHashes", eventData);
     }
 
-    onInitedBackendSeed(eventData) {
+    async onInitedBackendSeed(eventData) {
         console.log("onInitedBackendSeed", eventData);
     }
 
-    onInitedClientSeed(eventData) {
+    async onInitedClientSeed(eventData) {
         console.log("onInitedClientSeed", eventData);
     }
 
@@ -94,6 +103,44 @@ class Contract {
         this.subscribeOnEvents(this.address, "Casino::EventsStore",
             "inited_client_seed_event", false, this.onInitedClientSeed)
             .catch(console.error);
+    }
+
+
+    // -------- for backend mock---------
+    backendConstructor() {
+        this.backendPrivateKey = "f584541815415154554564564556446564548964546654546564346654949456";
+        this.backendAccount = new AptosAccount(this.backendPrivateKey);
+        this.seeds = {};
+    }
+
+    async SetBackendSeed(gameId, seed) {
+    }
+
+    async SetBackendSeedHash(gameId, hash) {
+        const payload = {
+            type: "script_function_payload",
+            function: `${this.address}::Casino::set_backend_seed_hash`,
+            type_arguments: [],
+            arguments: [gameId.toString(), hash.toString("hex")]
+        };
+        await this.backendSignAndSubmitTransaction(this.backendAccount, payload).then(console.log);
+    }
+
+    async backendSignAndSubmitTransaction(account, payload) {
+        const transaction = await aptos.client.generateTransaction(account, payload);
+        console.log('transaction', transaction);
+        return await aptos.client.signAndSubmitTransaction(account, transaction);
+    }
+
+    prepareBackendSeed() {
+        let seed = Math.floor(Math.random() * Math.floor(Number.MAX_SAFE_INTEGER)) + Date.now();
+        const s3 = sha3_256.create();
+        const hash = s3.hex();
+        this.seeds[hash] = seed;
+        return {
+            seed,
+            hash
+        };
     }
 }
 
