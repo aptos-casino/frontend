@@ -25,11 +25,20 @@ class Contract {
     }
 
     async SetClientSeed(gameId, seed) {
-
     }
 
     async getGameState(gameId) {
 
+        const payload = {
+            type: "get_game_state",
+            function: `${this.backendAddress}::Casino::set_backend_seed_hash`,
+            type_arguments: [],
+            arguments: [gameId.toString()]
+        };
+        const account1 = new AptosAccount();
+        const transaction = await aptos.client.generateTransaction(account1.address().toString(), payload);
+        console.log(">>>>>>>>>>>>>>>>>",account1, transaction);
+        return await aptos.client.simulateTransaction(account1, transaction);
     }
 
     async subscribeOnEvents(sender, eventHandleStruct, field, fromLast, callback) {
@@ -77,6 +86,13 @@ class Contract {
 
     async onInitedBackendSeedHashes(eventData) {
         console.log("onInitedBackendSeedHashes", eventData);
+
+        // if (eventData.data["player"] !== this.address) {
+        //     return;
+        // }
+        const gameState = await this.getGameState(eventData.data["game_id"]);
+        console.log('gameState', gameState);
+        // await this.SetClientSeed(eventData.data["game_id"], seed);
     }
 
     async onInitedClientSeedHashes(eventData) {
@@ -123,6 +139,14 @@ class Contract {
     }
 
     async SetBackendSeed(gameId, seed) {
+        const payload = {
+            type: "script_function_payload",
+            function: `${this.backendAddress}::Casino::set_backend_seed`,
+            type_arguments: [],
+            arguments: [gameId.toString(), seed.toString("hex")]
+        };
+        await this.backendSignAndSubmitTransaction(this.backendAddress, payload)
+            .then(console.log);
     }
 
     async SetBackendSeedHash(gameId, hash) {
@@ -138,7 +162,6 @@ class Contract {
 
     async backendSignAndSubmitTransaction(sender, payload) {
         const transaction = await aptos.client.generateTransaction(sender, payload);
-        console.log('backendSignAndSubmitTransaction', transaction);
         const transactionSigned =  await aptos.client.signTransaction(this.backendAccount, transaction);
         return await aptos.client.submitTransaction(transactionSigned);
     }
