@@ -25,7 +25,6 @@ class Aptos {
             + "/" + fieldName
             + "?start=" + String(from)
             + "&&limit=" + String(limit)
-        console.log(url);
         return fetch(url);
     }
 }

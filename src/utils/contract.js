@@ -36,17 +36,19 @@ class Contract {
             }
         }
         const loop = async () => {
+            console.log("loop");
+
             const lastEvent = await aptos.getEvent(this.address, this.address, eventHandleStruct, field, from, 1)
                 .catch(() => {
                     return null;
                 });
             if (lastEvent) {
-                callback(lastEvent);
-                from += 1;
+                callback(lastEvent.data);
             }
+            console.log("lastEvent", lastEvent);
 
             //setTimeout(loop, 100);
-        }
+        };
 
         setTimeout(loop, 100);
     }
