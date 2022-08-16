@@ -3,9 +3,10 @@ import {AptosAccount, HexString} from "aptos";
 import {sha3_256} from "js-sha3";
 
 class Contract {
-    constructor(address, wallet) {
+    constructor(address, wallet, eventHandler) {
         this.address = address;
         this.wallet = wallet;
+        this.eventHandler = eventHandler;
         this.backendConstructor();
         this.onStartGame = this.onStartGame.bind(this)
         this.onInitedBackendSeedHashes = this.onInitedBackendSeedHashes.bind(this)
@@ -16,10 +17,6 @@ class Contract {
     }
 
     async startRoll(playerAddress, hashSeed, bet, rollUnder) {
-        console.log("///////////");
-        console.log("getGameState", await this.getGameState(324));
-        console.log("///////////");
-        return
         const payload = {
             type: "script_function_payload",
             function: `${this.address}::Casino::start_roll`,
@@ -33,19 +30,21 @@ class Contract {
     }
 
     async getGameState(gameId) {
+        console.log(await aptos.client.getAccount(this.address));
         const payload = {
             type: "script_function_payload",
             function: `${this.backendAddress}::Casino::get_game_state`,
             type_arguments: [],
             arguments: [gameId.toString()]
         };
-        const account1 = new AptosAccount(undefined, this.address);
+        // const account1 = new AptosAccount(undefined, this.address);
+        const account1 = this.backendAccount;
         // const account2 = new AptosAccount();
-        console.log(">>>>>>>>>>>>>>>>>",account1);
+        console.log(">>>>>>>>>>>>>>>>>", account1);
         const transaction = await aptos.client.generateTransaction(account1.address().toString(), payload);
         transaction.signature.signature = "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
         // const transactionSigned =  await aptos.client.signTransaction(account1, transaction);
-        console.log(">>>>>>>>>>>>>>>>>",JSON.stringify(transaction, null, 4));
+        console.log(">>>>>>>>>>>>>>>>>", JSON.stringify(transaction, null, 4));
         return await aptos.client.simulateTransaction(transaction);
     }
 
@@ -73,7 +72,7 @@ class Contract {
                         from += 1;
                     }
                 }
-                setTimeout(loop, 500);
+                setTimeout(loop, 1000);
             } else {
                 setTimeout(loop, 1000);
             }
@@ -88,8 +87,13 @@ class Contract {
         // if (eventData.data["player"] !== this.address) {
         //     return;
         // }
+
+        await this.eventHandler.onStartGame(eventData);
+
         const {hash} = this.prepareBackendSeed();
-        await this.SetBackendSeedHash(eventData.data["game_id"], hash);
+        const gameId = eventData.data["game_id"];
+        this.gameIdToSeedHash[gameId] = hash;
+        await this.SetBackendSeedHash(gameId, hash);
     }
 
     async onInitedBackendSeedHashes(eventData) {
@@ -98,21 +102,32 @@ class Contract {
         // if (eventData.data["player"] !== this.address) {
         //     return;
         // }
-        // const gameState = await this.getGameState(eventData.data["game_id"]);
-        // console.log('gameState', gameState);
-        // await this.SetClientSeed(eventData.data["game_id"], seed);
+        await this.eventHandler.onInitedBackendSeedHashes(eventData);
     }
 
     async onInitedClientSeedHashes(eventData) {
         console.log("onInitedClientSeedHashes", eventData);
+
+        // if (eventData.data["player"] !== this.address) {
+        //     return;
+        // }
+        await this.eventHandler.onInitedClientSeedHashes(eventData);
     }
 
     async onInitedBackendSeed(eventData) {
         console.log("onInitedBackendSeed", eventData);
+        // if (eventData.data["player"] !== this.address) {
+        //     return;
+        // }
+        await this.eventHandler.onInitedBackendSeed(eventData);
     }
 
     async onInitedClientSeed(eventData) {
         console.log("onInitedClientSeed", eventData);
+        // if (eventData.data["player"] !== this.address) {
+        //     return;
+        // }
+        await this.eventHandler.onInitedClientSeed(eventData);
     }
 
     handleEvents() {
@@ -142,6 +157,7 @@ class Contract {
         this.backendAddress = "0xe3958730e1aefc132d5e940f60ee48aadee6dfb2029bc91267472ca5120c083e";
         this.backendAccount = new AptosAccount(new HexString(this.backendPrivateKey).toUint8Array(), this.backendAddress);
         this.backendSeeds = {};
+        this.gameIdToSeedHash = {};
         // console.log('this.backendAccount', this.backendAccount);
         // console.log('new HexString(this.backendPrivateKey).toUint8Array()', new HexString(this.backendPrivateKey).toUint8Array());
     }
@@ -170,7 +186,7 @@ class Contract {
 
     async backendSignAndSubmitTransaction(sender, payload) {
         const transaction = await aptos.client.generateTransaction(sender, payload);
-        const transactionSigned =  await aptos.client.signTransaction(this.backendAccount, transaction);
+        const transactionSigned = await aptos.client.signTransaction(this.backendAccount, transaction);
         return await aptos.client.submitTransaction(transactionSigned);
     }
 

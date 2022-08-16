@@ -168,7 +168,8 @@ export default {
       animating: false,
       showUpAnimation: false,
       showDownAnimation: false,
-      seeds: {}
+      seeds: {},
+      gameIdToSeedHash: {}
     };
   },
   methods: {
@@ -253,7 +254,6 @@ export default {
         return;
       }
 
-      const contractAddress = this.$store.state.contract.address;
       const playerAddress = this.account.name;
       const {hash} = this.prepareClientSeed();
 
@@ -271,6 +271,37 @@ export default {
           }).catch(e => {
         this.$notify.error(e.message || JSON.parse(e).error.details[0].message);
       });
+    },
+
+    async onStartGame(eventData) {
+      // if (eventData.data["player"] !== this.address) {
+      //     return;
+      // }
+      const gameId = eventData.data["game_id"];
+    },
+
+    async onInitedBackendSeedHashes(eventData) {
+      // if (eventData.data["player"] !== this.address) {
+      //     return;
+      // }
+    },
+
+    async onInitedClientSeedHashes(eventData) {
+      // if (eventData.data["player"] !== this.address) {
+      //     return;
+      // }
+    },
+
+    async onInitedBackendSeed(eventData) {
+      // if (eventData.data["player"] !== this.address) {
+      //     return;
+      // }
+    },
+
+    async onInitedClientSeed(eventData) {
+      // if (eventData.data["player"] !== this.address) {
+      //     return;
+      // }
     },
 
     fetchResult(hash) {
@@ -316,7 +347,7 @@ export default {
           this.$store.commit('UPDATE_ACCOUNT', {name:wallet.address});
           this.$store.commit('UPDATE_WALLET', wallet);
 
-          const contract = new Contract("0xe3958730e1aefc132d5e940f60ee48aadee6dfb2029bc91267472ca5120c083e", wallet);
+          const contract = new Contract("0xe3958730e1aefc132d5e940f60ee48aadee6dfb2029bc91267472ca5120c083e", wallet, this);
           contract.handleEvents();
           this.$store.commit('UPDATE_CONTRACT', contract);
           await this.getPlayerBalance();
