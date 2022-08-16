@@ -73,7 +73,7 @@ class Contract {
                         from += 1;
                     }
                 }
-                // setTimeout(loop, 50);
+                setTimeout(loop, 500);
             } else {
                 setTimeout(loop, 1000);
             }
