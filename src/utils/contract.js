@@ -12,9 +12,14 @@ class Contract {
         this.onInitedClientSeedHashes = this.onInitedClientSeedHashes.bind(this)
         this.onInitedBackendSeed = this.onInitedBackendSeed.bind(this)
         this.onInitedClientSeed = this.onInitedClientSeed.bind(this)
+        this.getGameState = this.getGameState.bind(this)
     }
 
     async startRoll(playerAddress, hashSeed, bet, rollUnder) {
+        console.log("///////////");
+        console.log("getGameState", await this.getGameState(324));
+        console.log("///////////");
+        return
         const payload = {
             type: "script_function_payload",
             function: `${this.address}::Casino::start_roll`,
@@ -28,17 +33,20 @@ class Contract {
     }
 
     async getGameState(gameId) {
-
         const payload = {
-            type: "get_game_state",
-            function: `${this.backendAddress}::Casino::set_backend_seed_hash`,
+            type: "script_function_payload",
+            function: `${this.backendAddress}::Casino::get_game_state`,
             type_arguments: [],
             arguments: [gameId.toString()]
         };
-        const account1 = new AptosAccount();
+        const account1 = new AptosAccount(undefined, this.address);
+        // const account2 = new AptosAccount();
+        console.log(">>>>>>>>>>>>>>>>>",account1);
         const transaction = await aptos.client.generateTransaction(account1.address().toString(), payload);
-        console.log(">>>>>>>>>>>>>>>>>",account1, transaction);
-        return await aptos.client.simulateTransaction(account1, transaction);
+        transaction.signature.signature = "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+        // const transactionSigned =  await aptos.client.signTransaction(account1, transaction);
+        console.log(">>>>>>>>>>>>>>>>>",JSON.stringify(transaction, null, 4));
+        return await aptos.client.simulateTransaction(transaction);
     }
 
     async subscribeOnEvents(sender, eventHandleStruct, field, fromLast, callback) {
@@ -65,7 +73,7 @@ class Contract {
                         from += 1;
                     }
                 }
-                setTimeout(loop, 50);
+                // setTimeout(loop, 50);
             } else {
                 setTimeout(loop, 1000);
             }
@@ -90,8 +98,8 @@ class Contract {
         // if (eventData.data["player"] !== this.address) {
         //     return;
         // }
-        const gameState = await this.getGameState(eventData.data["game_id"]);
-        console.log('gameState', gameState);
+        // const gameState = await this.getGameState(eventData.data["game_id"]);
+        // console.log('gameState', gameState);
         // await this.SetClientSeed(eventData.data["game_id"], seed);
     }
 
@@ -129,13 +137,13 @@ class Contract {
 
     // -------- for backend mock---------
     backendConstructor() {
-        console.log('backendConstructor');
-        this.backendPrivateKey = "f584541815415154554564564556446564548964546654546564346654949456";
-        this.backendAddress = "0xac7c4190af4c8aaff5e66a7598b4d9b5567e1c620bfb71bf7c6e073300746bbb";
+        // console.log('backendConstructor');
+        this.backendPrivateKey = "f584541815415154554564564964488564548964546654546564346654949456";
+        this.backendAddress = "0xe3958730e1aefc132d5e940f60ee48aadee6dfb2029bc91267472ca5120c083e";
         this.backendAccount = new AptosAccount(new HexString(this.backendPrivateKey).toUint8Array(), this.backendAddress);
         this.backendSeeds = {};
-        console.log('this.backendAccount', this.backendAccount);
-        console.log('new HexString(this.backendPrivateKey).toUint8Array()', new HexString(this.backendPrivateKey).toUint8Array());
+        // console.log('this.backendAccount', this.backendAccount);
+        // console.log('new HexString(this.backendPrivateKey).toUint8Array()', new HexString(this.backendPrivateKey).toUint8Array());
     }
 
     async SetBackendSeed(gameId, seed) {
@@ -157,7 +165,7 @@ class Contract {
             arguments: [gameId.toString(), hash.toString("hex")]
         };
         await this.backendSignAndSubmitTransaction(this.backendAddress, payload)
-            .then(console.log);
+            .catch(console.error);
     }
 
     async backendSignAndSubmitTransaction(sender, payload) {
