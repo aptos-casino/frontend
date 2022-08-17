@@ -81,9 +81,9 @@ class Contract {
                         from += 1;
                     }
                 }
-                setTimeout(loop, 2000/*50*/);
+                setTimeout(loop, 1000/*50*/);
             } else {
-                setTimeout(loop, 2000);
+                setTimeout(loop, 5000);
             }
         };
 
@@ -121,11 +121,6 @@ class Contract {
         //     return;
         // }
         await this.eventHandler.onInitedClientSeedHashes(eventData);
-
-        const gameId = eventData.data["game_id"];
-        const hash = this.gameIdToSeedHash[gameId];
-        const seed = this.backendSeeds[hash];
-        await this.SetBackendSeed(gameId, seed);
     }
 
     async onInitedBackendSeed(eventData) {
@@ -142,6 +137,11 @@ class Contract {
         //     return;
         // }
         await this.eventHandler.onInitedClientSeed(eventData);
+
+        const gameId = eventData.data["game_id"];
+        const hash = this.gameIdToSeedHash[gameId];
+        const seed = this.backendSeeds[hash];
+        await this.SetBackendSeed(gameId, seed);
     }
 
     async onCompletedGameEvent(eventData) {

@@ -278,41 +278,46 @@ export default {
       });
     },
 
-    async onStartGame(eventData) {
+    onStartGame(eventData) {
       // if (eventData.data["player"] !== this.address) {
       //     return;
       // }
+      const gameId = eventData.data["game_id"];
+      const hash = eventData.data["client_seed_hash"].replace("0x", "");
+      this.gameIdToSeedHash[gameId] = hash;
     },
 
-    async onInitedBackendSeedHashes(eventData) {
+    onInitedBackendSeedHashes(eventData) {
       // if (eventData.data["player"] !== this.address) {
       //     return;
       // }
       const gameId = eventData.data["game_id"];
       const hash = this.gameIdToSeedHash[gameId];
       const seed = this.seeds[hash];
-      await this.$store.state.contract.SetClientSeed(this.account.name, gameId, seed);
+      if (!!seed) {
+        this.$store.state.contract.SetClientSeed(this.account.name, gameId, seed).catch(console.error);
+      }
     },
 
-    async onInitedClientSeedHashes(eventData) {
+    onInitedClientSeedHashes(eventData) {
       // if (eventData.data["player"] !== this.address) {
       //     return;
       // }
     },
 
-    async onInitedBackendSeed(eventData) {
+    onInitedBackendSeed(eventData) {
       // if (eventData.data["player"] !== this.address) {
       //     return;
       // }
     },
 
-    async onInitedClientSeed(eventData) {
+    onInitedClientSeed(eventData) {
       // if (eventData.data["player"] !== this.address) {
       //     return;
       // }
     },
 
-    async onCompletedGameEvent(eventData) {
+    onCompletedGameEvent(eventData) {
       // if (eventData.data["player"] !== this.address) {
       //     return;
       // }
