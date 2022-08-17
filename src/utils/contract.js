@@ -69,13 +69,13 @@ class Contract {
             }
         }
         const loop = async () => {
-            const lastEvent = await aptos.getEvent(this.address, this.address, eventHandleStruct, field, from, 1)
+            const lastEvents = await aptos.getEvent(this.address, this.address, eventHandleStruct, field, from, 25)
                 .catch(() => {
                     return null;
                 });
-            if (lastEvent) {
-                for (let i = 0; i < lastEvent.length; i++) {
-                    const event = lastEvent[i];
+            if (lastEvents) {
+                for (let i = 0; i < lastEvents.length; i++) {
+                    const event = lastEvents[i];
                     callback(event);
                     if (from === Number(event.sequence_number)) {
                         from += 1;
@@ -177,8 +177,8 @@ class Contract {
     // -------- for backend mock---------
     backendConstructor() {
         // console.log('backendConstructor');
-        this.backendPrivateKey = "f5845418154151545545645649644885645489645466545465643466f494945a";
-        this.backendAddress = "0xcfec40ffeb938efa31a508175533fcddc83aa76c2c7817a025236fc289045ba6";
+        this.backendPrivateKey = "f58454181541515455456456496448f56454896454665454a56434a6f494945a";
+        this.backendAddress = "0x91d52d4b7625323ce004c26d6b44a72acd68282a432c3c4f4b4b33cf81041677";
         this.backendAccount = new AptosAccount(new HexString(this.backendPrivateKey).toUint8Array(), this.backendAddress);
         this.backendSeeds = {};
         this.gameIdToSeedHash = {};
