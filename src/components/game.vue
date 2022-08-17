@@ -334,7 +334,7 @@ export default {
 
       this.$notify({
         title: "Game finished",
-        message: payout > 0 ? 'Win' : "Lose",
+        message: payout === 0 ? "Lose" : "Win " + payout,
         duration: 5000,
         showClose: false,
         type: 'info'
