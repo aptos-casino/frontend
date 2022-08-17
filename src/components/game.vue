@@ -220,9 +220,14 @@ export default {
     },
 
     prepareClientSeed() {
-      let seed = Math.floor(Math.random() * Math.floor(Number.MAX_SAFE_INTEGER))  + Date.now();
+      let seed = new Uint8Array(64);
+      for (let i = 0; i < seed.byteLength; i++) {
+        seed[i] = Math.ceil(Math.random() * 1000) % 255;
+      }
       const s3 = sha3_256.create();
-      const hash = s3.hex();
+      sha3_256.update(seed);
+      seed = sha3_256.hex(seed);
+      const hash = s3.hex().toString("hex");
       this.seeds[hash] = seed;
       return {
         seed,
@@ -254,10 +259,10 @@ export default {
         return;
       }
 
-      const playerAddress = this.account.name;
       const {hash} = this.prepareClientSeed();
 
-      this.$store.state.contract.startRoll(playerAddress, "0x" + hash, this.eos, this.rollUnder)
+      console.log('>>>>>>>>>>>>>>>>>>');
+      this.$store.state.contract.startRoll(this.account.name, "0x" + hash, this.eos, this.rollUnder)
           .then(() => {
             this.animating = true;
 
@@ -277,13 +282,16 @@ export default {
       // if (eventData.data["player"] !== this.address) {
       //     return;
       // }
-      const gameId = eventData.data["game_id"];
     },
 
     async onInitedBackendSeedHashes(eventData) {
       // if (eventData.data["player"] !== this.address) {
       //     return;
       // }
+      const gameId = eventData.data["game_id"];
+      const hash = this.gameIdToSeedHash[gameId];
+      const seed = this.seeds[hash];
+      await this.$store.state.contract.SetClientSeed(this.account.name, gameId, seed);
     },
 
     async onInitedClientSeedHashes(eventData) {
@@ -299,6 +307,12 @@ export default {
     },
 
     async onInitedClientSeed(eventData) {
+      // if (eventData.data["player"] !== this.address) {
+      //     return;
+      // }
+    },
+
+    async onCompletedGameEvent(eventData) {
       // if (eventData.data["player"] !== this.address) {
       //     return;
       // }
@@ -347,7 +361,7 @@ export default {
           this.$store.commit('UPDATE_ACCOUNT', {name:wallet.address});
           this.$store.commit('UPDATE_WALLET', wallet);
 
-          const contract = new Contract("0xe3958730e1aefc132d5e940f60ee48aadee6dfb2029bc91267472ca5120c083e", wallet, this);
+          const contract = new Contract("0xcfec40ffeb938efa31a508175533fcddc83aa76c2c7817a025236fc289045ba6", wallet, this);
           contract.handleEvents();
           this.$store.commit('UPDATE_CONTRACT', contract);
           await this.getPlayerBalance();
