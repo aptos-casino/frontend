@@ -291,12 +291,16 @@ export default {
       // if (eventData.data["player"] !== this.address) {
       //     return;
       // }
-      const gameId = eventData.data["game_id"];
-      const hash = this.gameIdToSeedHash[gameId];
-      const seed = this.seeds[hash];
-      if (!!seed) {
-        this.$store.state.contract.SetClientSeed(this.account.name, gameId, seed).catch(console.error);
+      const handleLater = () => {
+        // wait event about finish game
+        const gameId = eventData.data["game_id"];
+        const hash = this.gameIdToSeedHash[gameId];
+        const seed = this.seeds[hash];
+        if (!!seed) {
+          this.$store.state.contract.SetClientSeed(this.account.name, gameId, seed).catch(console.error);
+        }
       }
+      setTimeout(handleLater, 5000);
     },
 
     onInitedClientSeedHashes(eventData) {
@@ -321,6 +325,9 @@ export default {
       // if (eventData.data["player"] !== this.address) {
       //     return;
       // }
+
+      const gameId = eventData.data["game_id"];
+      this.gameIdToSeedHash[gameId] = null;
 
       const payout = eventData.data["payout"];
       this.animating = false;
