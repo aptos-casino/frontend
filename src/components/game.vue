@@ -153,7 +153,7 @@ export default {
     return {
       eosLogo,
       tokenLogo,
-      eos: 1,
+      eos: 1000,
       rollUnder: 50,
       currentAPTOS: 0,
       poolBalance: 0,
