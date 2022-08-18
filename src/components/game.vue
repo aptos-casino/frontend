@@ -244,7 +244,7 @@ export default {
         });
         return;
       }
-      const minBetAmount = 0.1
+      const minBetAmount = 1000
       if (this.eos < minBetAmount) {
         this.$notify({
           title: 'Bet Failed',
