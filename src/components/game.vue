@@ -294,7 +294,17 @@ export default {
         const hash = this.gameIdToSeedHash[gameId];
         const seed = this.seeds[hash];
         if (!!seed) {
-          this.$store.state.contract.SetClientSeed(this.account.name, gameId, seed).catch(console.error);
+          this.$store.state.contract.SetClientSeed(this.account.name, gameId, seed)
+              .catch(console.error)
+              .then(()=>{
+                this.$notify({
+                  title: "Complete",
+                  message: "Setup seed",
+                  duration: 1000,
+                  showClose: false,
+                  type: 'info'
+                });
+              });
         }
       }
       setTimeout(handleLater, 5000);
@@ -319,7 +329,7 @@ export default {
     },
 
     onCompletedGameEvent(eventData) {
-      // if (eventData.data["player"] !== this.address) {
+      // if (eventData.data["player"] !== this.address || eventData.data["time"] < page_load_time) {
       //     return;
       // }
 
