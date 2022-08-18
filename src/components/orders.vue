@@ -21,12 +21,12 @@
           :key="index"
           v-for="(order, index) in orders">
           <td>{{dateFormat(order.block_time)}}</td> 
-          <td>{{order.action_trace.act.data.result.player}}</td> 
-          <td>{{order.action_trace.act.data.result.roll_under}}</td> 
-          <td>{{order.action_trace.act.data.result.amount}}</td> 
-          <td>{{order.action_trace.act.data.result.random_roll}}</td>
+          <td>{{order.player}}</td>
+          <td>{{order.roll_under}}</td>
+          <td>{{order.amount}}</td>
+          <td>{{order.random_roll}}</td>
           <td class="payout">
-            {{order.action_trace.act.data.result.payout !== '0.0000 APTOS' && order.action_trace.act.data.result.payout || ''}}
+            {{order.payout !== '0.0000 APTOS' && order.payout || ''}}
           </td> 
         </tr>
       </tbody>
@@ -35,12 +35,13 @@
 </template>
 
 <script>
-  import api from '@/utils/eos';
+  import eventHub from "@/utils/event";
 
   export default {
     mounted() {
-      //注释
-      //setInterval(this.fetchOrders, 1000);
+      eventHub.$on('ContractResolved', () => {
+        this.$store.state.contract.gameCompleateHandler = this.onCompletedGameEvent;
+      })
     },
 
     data() {
@@ -50,17 +51,15 @@
     },
 
     methods: {
-      fetchOrders() {
-        api.getActions('fairdicelogs', -1, -20).then(({ actions }) => {
-          this.orders = actions.filter(action => {
-            return action.action_trace
-              && action.action_trace.act
-              && action.action_trace.act.data
-              && action.action_trace.act.data.result
-              && action.action_trace.act.account == "fairdicelogs" 
-              && action.action_trace.act.name == "result";
-          }).reverse();
-        });   
+      onCompletedGameEvent(eventData) {
+        this.orders.push({
+          block_time: eventData.data["time"],
+          player: eventData.data["player_addr"],
+          roll_under: eventData.data["prediction"],
+          amount: eventData.data["bet_amount"],
+          random_roll: eventData.data["lucky_number"],
+          payout: eventData.data["payout"],
+        })
       },
 
       dateFormat(raw) {

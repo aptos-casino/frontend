@@ -136,9 +136,6 @@
 import eosLogo from '@/assets/eos.png';
 import tokenLogo from '@/assets/bet-token.png';
 import eventHub from '@/utils/event';
-import network from '@/utils/network';
-import fetch from '@/utils/api';
-import api from '@/utils/eos';
 import aptos from '@/utils/aptos';
 import MartianWallet from "@/utils/MartianWallet";
 import Contract from "@/utils/contract";
@@ -341,37 +338,6 @@ export default {
       });
     },
 
-    fetchResult(hash) {
-      api.getActions('fairdicelogs', -1, -20).then(({actions}) => {
-        const result = actions.find(action => action.action_trace
-            && action.action_trace.act
-            && action.action_trace.act.account === 'fairdicelogs'
-            && action.action_trace.act.name === 'result'
-            && action.action_trace.act.data
-            && action.action_trace.act.data.result
-            && action.action_trace.act.data.result.seed_hash === hash);
-
-        if (!result) return this.fetchResult(hash);
-
-        const {action_trace: {act: {data: {result: {amount, payout}}}}} = result;
-
-        if (payout === '0.0000 APTOS') {
-          this.showDownAnimation = true;
-          this.animationTxt = amount;
-        } else {
-          this.showUpAnimation = true;
-          this.animationTxt = payout;
-        }
-
-        setTimeout(() => {
-          this.showDownAnimation = false;
-          this.showUpAnimation = false;
-        }, 3100);
-
-        this.animating = false;
-      });
-    },
-
     async login() {
       try {
         const wallet = new MartianWallet();
@@ -384,11 +350,12 @@ export default {
           this.$store.commit('UPDATE_ACCOUNT', {name:wallet.address});
           this.$store.commit('UPDATE_WALLET', wallet);
 
-          const contract = new Contract("0x91d52d4b7625323ce004c26d6b44a72acd68282a432c3c4f4b4b33cf81041677", wallet, this);
-          contract.handleEvents();
+          const contract = new Contract("0xa31e15e44356e26ebc637d5ff8866035f65bf64439182e240cb609983f0a2bcc", wallet, this);
           this.$store.commit('UPDATE_CONTRACT', contract);
           await this.getPlayerBalance();
           await this.getPool();
+          eventHub.$emit('ContractResolved')
+          contract.handleEvents();
         }
       } catch (e) {
         this.$message.error(e.message || e);

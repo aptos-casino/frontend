@@ -7,6 +7,7 @@ class Contract {
         this.address = address;
         this.wallet = wallet;
         this.eventHandler = eventHandler;
+        this.gameCompleateHandler = null;
         this.backendConstructor();
         this.onStartGame = this.onStartGame.bind(this)
         this.onInitedBackendSeedHashes = this.onInitedBackendSeedHashes.bind(this)
@@ -150,6 +151,9 @@ class Contract {
         //     return;
         // }
         await this.eventHandler.onCompletedGameEvent(eventData);
+        if (this.gameCompleateHandler) {
+            this.gameCompleateHandler(eventData);
+        }
     }
 
     handleEvents() {
@@ -177,8 +181,8 @@ class Contract {
     // -------- for backend mock---------
     backendConstructor() {
         // console.log('backendConstructor');
-        this.backendPrivateKey = "f58454181541515455456456496448f56454896454665454a56434a6f494945a";
-        this.backendAddress = "0x91d52d4b7625323ce004c26d6b44a72acd68282a432c3c4f4b4b33cf81041677";
+        this.backendPrivateKey = "f58454181541515455456456496448f56454896454665454a56434a6fb94b45a";
+        this.backendAddress = "0xa31e15e44356e26ebc637d5ff8866035f65bf64439182e240cb609983f0a2bcc";
         this.backendAccount = new AptosAccount(new HexString(this.backendPrivateKey).toUint8Array(), this.backendAddress);
         this.backendSeeds = {};
         this.gameIdToSeedHash = {};
