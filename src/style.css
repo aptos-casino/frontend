@@ -15,6 +15,7 @@ ul, ol {
 @media screen {
   body {
     width: 2000px;
+    background-color: #191919;
   }
 }
 
