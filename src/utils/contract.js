@@ -181,8 +181,8 @@ class Contract {
     // -------- for backend mock---------
     backendConstructor() {
         // console.log('backendConstructor');
-        this.backendPrivateKey = "f58454181541515455456456496448f56454896454665454a56434a6fb94b45a";
-        this.backendAddress = "0xa31e15e44356e26ebc637d5ff8866035f65bf64439182e240cb609983f0a2bcc";
+        this.backendPrivateKey = "f5845418a541515455456456496448f56454896454665454a56c34a6fb94b45a";
+        this.backendAddress = "0xd2d754040e462f42833b6a48ac5aa411ea067afef9106b042723b2cfc5f205a9";
         this.backendAccount = new AptosAccount(new HexString(this.backendPrivateKey).toUint8Array(), this.backendAddress);
         this.backendSeeds = {};
         this.gameIdToSeedHash = {};
