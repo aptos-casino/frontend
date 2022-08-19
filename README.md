@@ -1,11 +1,9 @@
 # dice4
 
-## Setup 
-Copy `example.env` to `.env` and fill it
-
 ## Project setup
+Copy `example.env` to `.env` and fill it
 ```
-yarn install
+yarn
 ```
 
 ### Compiles and hot-reloads for development
