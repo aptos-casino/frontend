@@ -137,7 +137,7 @@ import eosLogo from '@/assets/eos.png';
 import tokenLogo from '@/assets/bet-token.png';
 import eventHub from '@/utils/event';
 import aptos from '@/utils/aptos';
-import MartianWallet from "@/utils/MartianWallet";
+import Wallet from "@/utils/Wallet";
 import Contract from "@/utils/contract";
 import {sha3_256} from "js-sha3";
 
@@ -350,7 +350,7 @@ export default {
 
     async login() {
       try {
-        const wallet = new MartianWallet();
+        const wallet = new Wallet();
         if (wallet) {
           await wallet.connect();
           const account = await wallet.getAccount();
