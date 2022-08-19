@@ -356,7 +356,7 @@ export default {
           const account = await wallet.getAccount();
           console.log('account', account);
           // todo to target chainid from wallet
-          await aptos.updateClient("https://fullnode.devnet.aptoslabs.com");
+          await aptos.updateClient(process.env.VUE_APP_FULL_NODE_URL);
           this.$store.commit('UPDATE_ACCOUNT', {name:wallet.address});
           this.$store.commit('UPDATE_WALLET', wallet);
 
