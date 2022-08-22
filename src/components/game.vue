@@ -153,7 +153,7 @@ export default {
     return {
       eosLogo,
       tokenLogo,
-      eos: 1000,
+      eos: 3,
       rollUnder: 50,
       currentAPTOS: 0,
       poolBalance: 0,
@@ -244,7 +244,7 @@ export default {
         });
         return;
       }
-      const minBetAmount = 1000
+      const minBetAmount = 3
       if (this.eos < minBetAmount) {
         this.$notify({
           title: 'Bet Failed',
