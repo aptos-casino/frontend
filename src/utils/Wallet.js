@@ -5,7 +5,7 @@ class Wallet {
     constructor() {
         if (window.aptos) {
             this.wallet = window.aptos;
-        } else if (this.wallet) {
+        } else if (window.martian) {
             // https://docs.martianwallet.xyz/docs/
             this.wallet = window.martian;
         } else {
