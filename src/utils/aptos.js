@@ -15,10 +15,12 @@ class Aptos {
     }
 
     async getBalance(address) {
-        let resources = await this.client.getAccountResources(address);
-        if (!!resources.find) {
-            let accountResource = resources.find((r) => r.type === "0x1::coin::CoinStore<0x1::aptos_coin::AptosCoin>");
-            return accountResource.data.coin.value;
+        if (!!this.client && !!address) {
+            let resources = await this.client.getAccountResources(address);
+            if (!!resources.find) {
+                let accountResource = resources.find((r) => r.type === "0x1::coin::CoinStore<0x1::aptos_coin::AptosCoin>");
+                return accountResource.data.coin.value;
+            }
         }
         return -1;
     }
@@ -39,7 +41,7 @@ class Aptos {
 
     async getEvent(address, sender, eventHandleStruct, fieldName, from, limit) {
         const promise = new Promise(async (resolve, reject) => {
-            let url = this.url + "/v1/accounts/" + sender.replace("0x", "")
+            let url = this.url + "/accounts/" + sender.replace("0x", "")
                 + "/events/" + address + "::" + eventHandleStruct
                 + "/" + fieldName
                 + "?start=" + String(from)

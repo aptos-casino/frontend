@@ -20,7 +20,7 @@ class Contract {
 
     async startRoll(playerAddress, hashSeed, bet, rollUnder) {
         const payload = {
-            type: "script_function_payload",
+            type: "entry_function_payload",
             function: `${this.address}::Casino::start_roll`,
             type_arguments: [],
             arguments: [bet.toString(), hashSeed, rollUnder]

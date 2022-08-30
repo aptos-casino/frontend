@@ -177,7 +177,6 @@ export default {
     // },
 
     getPool() {
-      console.log("asdas");
       if (!!this.$store.state.contract) {
         aptos.getBalance(this.$store.state.contract.address).then(balance => this.poolBalance = balance);
       } else {
@@ -271,7 +270,8 @@ export default {
               type: 'info'
             });
           }).catch(e => {
-        this.$notify.error(e.message || JSON.parse(e).error.details[0].message);
+            console.error(e);
+        this.$notify.error((e.message || e.error) || JSON.parse(e).error.details[0].message);
       });
     },
 

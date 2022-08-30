@@ -3,11 +3,8 @@ import aptos from "@/utils/aptos";
 class Wallet {
 
     constructor() {
-        if (window.aptos) {
-            this.wallet = window.aptos;
-        } else if (window.martian) {
-            // https://docs.martianwallet.xyz/docs/
-            this.wallet = window.martian;
+        if (window.pontem) {
+            this.wallet = window.pontem;
         } else {
             this.wallet = null;
             throw Error("aptos wallet extension not found");
@@ -18,7 +15,7 @@ class Wallet {
         return new Promise((resolve, reject) => {
             this.wallet.connect().then((response) => {
                 console.log('response', response);
-                this.address = response.address;
+                this.address = response;
                 resolve(response);
             }).catch((err) => {
                 console.error(err);
@@ -28,21 +25,18 @@ class Wallet {
     }
 
     async getAccount() {
-        if (this.wallet.getAccount) {
-            return await this.wallet.getAccount(this.address);
-        }
-        return await this.wallet.account(this.address);
+        return await this.wallet.account();
     }
 
     async signAndSubmitTransaction(sender, payload) {
-        let transaction;
-        if (this.wallet.generateTransaction) {
-            transaction = await this.wallet.generateTransaction(sender, payload);
-        } else {
-            transaction = await aptos.client.generateTransaction(sender, payload);
-        }
-        console.log('transaction', transaction);
-        return await this.wallet.signAndSubmitTransaction(transaction);
+        const options = {
+            max_gas_amount: "10000",
+            gas_unit_price: "2",
+            expiration_timestamp_secs: new Date().getTime().toString(),
+        };
+        return await this.wallet.signAndSubmit(payload, options).then(res => {
+            return res.result.hash;
+        });
     }
 }
 
