@@ -139,7 +139,7 @@ import eventHub from '@/utils/event';
 import aptos from '@/utils/aptos';
 import Wallet from "@/utils/Wallet";
 import Contract from "@/utils/contract";
-import {sha3_256} from "js-sha3";
+import {keccak256, sha3_256} from "js-sha3";
 
 export default {
   mounted() {
@@ -220,13 +220,12 @@ export default {
       for (let i = 0; i < seed.byteLength; i++) {
         seed[i] = Math.ceil(Math.random() * 1000) % 255;
       }
-      const s3 = sha3_256.create();
-      sha3_256.update(seed);
-      seed = sha3_256.hex(seed);
-      const hash = s3.hex().toString("hex");
-      this.seeds[hash] = seed;
+      const toHexString = (bytes) =>
+          bytes.reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), '');
+      const hash = sha3_256(seed);
+      this.seeds[hash] = toHexString(seed);
       return {
-        seed,
+        seed: toHexString(seed),
         hash
       };
     },

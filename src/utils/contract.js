@@ -8,7 +8,6 @@ class Contract {
         this.wallet = wallet;
         this.eventHandler = eventHandler;
         this.gameCompleateHandler = null;
-        this.backendConstructor();
         this.onStartGame = this.onStartGame.bind(this)
         this.onInitedBackendSeedHashes = this.onInitedBackendSeedHashes.bind(this)
         this.onInitedBackendSeed = this.onInitedBackendSeed.bind(this)
@@ -25,10 +24,12 @@ class Contract {
             arguments: [bet.toString(), hashSeed, rollUnder]
         };
         console.log('payload', payload)
+        console.log('hashSeed', hashSeed);
         await this.wallet.signAndSubmitTransaction(playerAddress, payload).then(console.log);
     }
 
     async SetClientSeed(playerAddress, gameId, seed) {
+        console.log('seed', gameId, seed);
         const payload = {
             type: "entry_function_payload",
             function: `${this.address}::Casino::set_client_seed`,
@@ -98,11 +99,6 @@ class Contract {
         // }
 
         await this.eventHandler.onStartGame(eventData);
-
-        const {hash} = this.prepareBackendSeed();
-        const gameId = eventData.data["game_id"];
-        this.gameIdToSeedHash[gameId] = hash;
-        await this.SetBackendSeedHash(gameId, hash);
     }
 
     async onInitedBackendSeedHashes(eventData) {
@@ -128,11 +124,6 @@ class Contract {
         //     return;
         // }
         await this.eventHandler.onInitedClientSeed(eventData);
-
-        const gameId = eventData.data["game_id"];
-        const hash = this.gameIdToSeedHash[gameId];
-        const seed = this.backendSeeds[hash];
-        await this.SetBackendSeed(gameId, seed);
     }
 
     async onCompletedGameEvent(eventData) {
@@ -162,64 +153,6 @@ class Contract {
         this.subscribeOnEvents(this.address, "Casino::EventsStore",
             "completed_game_event", false, this.onCompletedGameEvent)
             .catch(console.error);
-    }
-
-
-    // -------- for backend mock---------
-    backendConstructor() {
-        // console.log('backendConstructor');
-        this.backendPrivateKey = "f5845418a541515455456456496448f56454896454665454a56c34a6fb94b45a";
-        this.backendAddress = "0xd2d754040e462f42833b6a48ac5aa411ea067afef9106b042723b2cfc5f205a9";
-        this.backendAccount = new AptosAccount(new HexString(this.backendPrivateKey).toUint8Array(), this.backendAddress);
-        this.backendSeeds = {};
-        this.gameIdToSeedHash = {};
-        // console.log('this.backendAccount', this.backendAccount);
-        // console.log('new HexString(this.backendPrivateKey).toUint8Array()', new HexString(this.backendPrivateKey).toUint8Array());
-    }
-
-    async SetBackendSeed(gameId, seed) {
-        const payload = {
-            type: "script_function_payload",
-            function: `${this.backendAddress}::Casino::set_backend_seed`,
-            type_arguments: [],
-            arguments: [gameId.toString(), seed.toString("hex")]
-        };
-        await this.backendSignAndSubmitTransaction(this.backendAddress, payload)
-            .then(console.log);
-    }
-
-    async SetBackendSeedHash(gameId, hash) {
-        const payload = {
-            type: "script_function_payload",
-            function: `${this.backendAddress}::Casino::set_backend_seed_hash`,
-            type_arguments: [],
-            arguments: [gameId.toString(), hash.toString("hex")]
-        };
-        await this.backendSignAndSubmitTransaction(this.backendAddress, payload)
-            .catch(console.error);
-    }
-
-    async backendSignAndSubmitTransaction(sender, payload) {
-        const transaction = await aptos.client.generateTransaction(sender, payload);
-        const transactionSigned = await aptos.client.signTransaction(this.backendAccount, transaction);
-        return await aptos.client.submitTransaction(transactionSigned);
-    }
-
-    prepareBackendSeed() {
-        let seed = new Uint8Array(64);
-        for (let i = 0; i < seed.byteLength; i++) {
-            seed[i] = Math.ceil(Math.random() * 1000) % 255;
-        }
-        const s3 = sha3_256.create();
-        console.log(sha3_256.hex(seed));
-        sha3_256.update(seed);
-        seed = sha3_256.hex(seed);
-        const hash = s3.hex().toString("hex");
-        this.backendSeeds[hash] = seed;
-        return {
-            seed,
-            hash
-        };
     }
 }
 
