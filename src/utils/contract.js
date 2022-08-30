@@ -11,7 +11,6 @@ class Contract {
         this.backendConstructor();
         this.onStartGame = this.onStartGame.bind(this)
         this.onInitedBackendSeedHashes = this.onInitedBackendSeedHashes.bind(this)
-        this.onInitedClientSeedHashes = this.onInitedClientSeedHashes.bind(this)
         this.onInitedBackendSeed = this.onInitedBackendSeed.bind(this)
         this.onInitedClientSeed = this.onInitedClientSeed.bind(this)
         this.onCompletedGameEvent = this.onCompletedGameEvent.bind(this)
@@ -31,7 +30,7 @@ class Contract {
 
     async SetClientSeed(playerAddress, gameId, seed) {
         const payload = {
-            type: "script_function_payload",
+            type: "entry_function_payload",
             function: `${this.address}::Casino::set_client_seed`,
             type_arguments: [],
             arguments: [gameId.toString(), seed]
@@ -115,15 +114,6 @@ class Contract {
         await this.eventHandler.onInitedBackendSeedHashes(eventData);
     }
 
-    async onInitedClientSeedHashes(eventData) {
-        console.log("onInitedClientSeedHashes", eventData);
-
-        // if (eventData.data["player"] !== this.address) {
-        //     return;
-        // }
-        await this.eventHandler.onInitedClientSeedHashes(eventData);
-    }
-
     async onInitedBackendSeed(eventData) {
         console.log("onInitedBackendSeed", eventData);
         // if (eventData.data["player"] !== this.address) {
@@ -162,9 +152,6 @@ class Contract {
             .catch(console.error);
         this.subscribeOnEvents(this.address, "Casino::EventsStore",
             "inited_backend_seed_hashes_event", false, this.onInitedBackendSeedHashes)
-            .catch(console.error);
-        this.subscribeOnEvents(this.address, "Casino::EventsStore",
-            "inited_client_seed_hashes_event", false, this.onInitedClientSeedHashes)
             .catch(console.error);
         this.subscribeOnEvents(this.address, "Casino::EventsStore",
             "inited_backend_seed_event", false, this.onInitedBackendSeed)

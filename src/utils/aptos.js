@@ -34,9 +34,9 @@ class Aptos {
                 } = this.pullEventsQueue.pop();
                 resolve(await fetch(url));
             }
-            setTimeout(pool, 500);
+            setTimeout(pool, 1500);
         }
-        setTimeout(pool, 500);
+        setTimeout(pool, 1500);
     }
 
     async getEvent(address, sender, eventHandleStruct, fieldName, from, limit) {
