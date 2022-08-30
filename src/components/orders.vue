@@ -20,7 +20,7 @@
         <tr 
           :key="index"
           v-for="(order, index) in orders">
-          <td>{{dateFormat(order.block_time)}}</td> 
+          <td>{{dateFormat(Math.ceil(order.block_time / 1000))}}</td>
           <td>{{order.player}}</td>
           <td>{{order.roll_under}}</td>
           <td>{{order.amount}}</td>
@@ -63,7 +63,7 @@
       },
 
       dateFormat(raw) {
-        return new Date(raw+'Z').toLocaleTimeString(); 
+        return (new Date(raw).toLocaleDateString() + " " + new Date(raw).toLocaleTimeString());
       }
     }
   };
