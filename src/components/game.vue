@@ -193,7 +193,7 @@ export default {
     },
 
     maxBetAmount() {
-      return this.poolBalance / 100 / (98 / this.winChance) * 0.9;
+      return this.poolBalance / (98 / this.winChance);
     },
 
     setEOS(rate) {
