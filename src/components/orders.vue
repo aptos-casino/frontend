@@ -26,7 +26,7 @@
           <td>{{order.amount}}</td>
           <td>{{order.random_roll}}</td>
           <td class="payout">
-            {{order.payout !== '0.0000 APTOS' && order.payout || ''}}
+            {{order.payout > 0 && order.payout || ''}}
           </td> 
         </tr>
       </tbody>
