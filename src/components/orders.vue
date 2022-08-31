@@ -36,6 +36,7 @@
 
 <script>
   import eventHub from "@/utils/event";
+  import {reverse, sortedIndexBy} from "lodash";
 
   export default {
     mounted() {
@@ -59,7 +60,9 @@
           amount: eventData.data["bet_amount"],
           random_roll: eventData.data["lucky_number"],
           payout: eventData.data["payout"],
-        })
+        });
+        sortedIndexBy(this.orders, "block_time");
+        reverse(this.orders);
       },
 
       dateFormat(raw) {
