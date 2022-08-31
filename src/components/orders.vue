@@ -21,7 +21,7 @@
           :key="index"
           v-for="(order, index) in orders">
           <td>{{dateFormat(Math.ceil(order.block_time / 1000))}}</td>
-          <td>{{order.player}}</td>
+          <td :class="[(order.player === player) ? 'player' : '']" >{{order.player}}</td>
           <td>{{order.roll_under}}</td>
           <td>{{order.amount}}</td>
           <td>{{order.random_roll}}</td>
@@ -42,12 +42,14 @@
     mounted() {
       eventHub.$on('ContractResolved', () => {
         this.$store.state.contract.gameCompleateHandler = this.onCompletedGameEvent;
+        this.player = this.$store.state.account.name;
       })
     },
 
     data() {
       return {
-        orders: []
+        orders: [],
+        player: "",
       };
     },
 
@@ -127,6 +129,9 @@
   .payout {
     color: #02f292;
     text-shadow: 0 0 5px #02f292;
+  }
+  .player {
+    color: #f29202;
   }
 </style>
 
