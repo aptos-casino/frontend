@@ -147,13 +147,14 @@ export default {
     eventHub.$on('SHOW_ABOUT', () => this.showAbout = true);
     eventHub.$on('SHOW_SOCIAL', () => this.showSocial = true);
     this.getPool();
+    this.page_load_time = Number(new Date());
   },
 
   data() {
     return {
       eosLogo,
       tokenLogo,
-      eos: 3,
+      eos: 100,
       rollUnder: 50,
       currentAPTOS: 0,
       poolBalance: 0,
@@ -166,7 +167,8 @@ export default {
       showUpAnimation: false,
       showDownAnimation: false,
       seeds: {},
-      gameIdToSeedHash: {}
+      gameIdToSeedHash: {},
+      ownGame: {}
     };
   },
   methods: {
@@ -190,12 +192,8 @@ export default {
       }
     },
 
-    floor(value, decimals) {
-      return Number(Math.floor(value + 'e' + decimals) + 'e-' + decimals);
-    },
-
     maxBetAmount() {
-      return this.floor(this.poolBalance / 100 / (98 / this.winChance) * 0.9, 4);
+      return this.poolBalance / 100 / (98 / this.winChance) * 0.9;
     },
 
     setEOS(rate) {
@@ -242,7 +240,7 @@ export default {
         });
         return;
       }
-      const minBetAmount = 3
+      const minBetAmount = 100
       if (this.eos < minBetAmount) {
         this.$notify({
           title: 'Bet Failed',
@@ -256,9 +254,9 @@ export default {
 
       const {hash} = this.prepareClientSeed();
 
-      console.log('>>>>>>>>>>>>>>>>>>');
       this.$store.state.contract.startRoll(this.account.name, "0x" + hash, this.eos, this.rollUnder)
           .then(() => {
+            this.getPlayerBalance();
             this.animating = true;
 
             this.$notify({
@@ -275,18 +273,17 @@ export default {
     },
 
     onStartGame(eventData) {
-      // if (eventData.data["player"] !== this.address) {
-      //     return;
-      // }
       const gameId = eventData.data["game_id"];
       const hash = eventData.data["client_seed_hash"].replace("0x", "");
       this.gameIdToSeedHash[gameId] = hash;
+      this.ownGame[gameId] = eventData.data["player"] === this.account.name;
     },
 
     onInitedBackendSeedHashes(eventData) {
-      // if (eventData.data["player"] !== this.address) {
-      //     return;
-      // }
+      const gameId = eventData.data["game_id"];
+      if (!this.ownGame[gameId]) {
+          return;
+      }
       const handleLater = () => {
         // wait event about finish game
         const gameId = eventData.data["game_id"];
@@ -294,53 +291,42 @@ export default {
         const seed = this.seeds[hash];
         if (!!seed) {
           this.$store.state.contract.SetClientSeed(this.account.name, gameId, seed)
-              .catch(console.error)
-              .then(()=>{
-                this.$notify({
-                  title: "Complete",
-                  message: "Setup seed",
-                  duration: 1000,
-                  showClose: false,
-                  type: 'info'
-                });
-              });
+              .catch(console.error);
         }
       }
       setTimeout(handleLater, 5000);
     },
 
-    onInitedClientSeedHashes(eventData) {
-      // if (eventData.data["player"] !== this.address) {
-      //     return;
-      // }
-    },
-
     onInitedBackendSeed(eventData) {
-      // if (eventData.data["player"] !== this.address) {
-      //     return;
-      // }
+      const gameId = eventData.data["game_id"];
+      if (!this.ownGame[gameId]) {
+          return;
+      }
     },
 
     onInitedClientSeed(eventData) {
-      // if (eventData.data["player"] !== this.address) {
-      //     return;
-      // }
+      const gameId = eventData.data["game_id"];
+      if (!this.ownGame[gameId]) {
+          return;
+      }
     },
 
     onCompletedGameEvent(eventData) {
-      // if (eventData.data["player"] !== this.address || eventData.data["time"] < page_load_time) {
-      //     return;
-      // }
+      this.getPlayerBalance();
+      this.getPool();
 
       const gameId = eventData.data["game_id"];
       this.gameIdToSeedHash[gameId] = null;
 
+      if (!this.ownGame[gameId] || eventData.data["time"] < this.page_load_time * 1000) {
+          return;
+      }
+
       const payout = eventData.data["payout"];
       this.animating = false;
-
       this.$notify({
         title: "Game finished",
-        message: payout === 0 ? "Lose" : "Win " + payout,
+        message: payout === "0" ? "Lose" : "Win " + payout,
         duration: 5000,
         showClose: false,
         type: 'info'
